@@ -23,9 +23,10 @@ const comlinkLoaderSpecificOptions = [
   'singleton'
 ];
 
-export default function loader () { }
+function loader () { }
 
-loader.pitch = function (request) {
+/** @type {import('webpack').PitchLoaderDefinitionFunction} */
+const pitch = function (request) {
   const options = loaderUtils.getOptions(this) || {};
   const singleton = options.singleton;
   const workerLoaderOptions = {};
@@ -61,8 +62,12 @@ loader.pitch = function (request) {
         Worker = require(${remainingRequest}),
         inst;
     module.exports = function f() {
-      if (this instanceof f) return wrap(Worker());
-      return inst || (inst = wrap(Worker()));
+      if (this instanceof f) return wrap(Worker.default());
+      return inst || (inst = wrap(Worker.default()));
     };
   `.replace(/\n\s*/g, '');
 };
+
+loader.pitch = pitch;
+
+export default loader;
